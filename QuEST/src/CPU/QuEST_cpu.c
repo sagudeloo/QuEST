@@ -2523,7 +2523,8 @@ void statevec_pauliXLocal(Qureg qureg, int targetQubit)
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        for (thisTask=0; thisTask<numTasks; thisTask++) {
+        for (thisTask=0; thisTask<numTasks; thisTask+=4) {
+            //0
             thisBlock   = thisTask / sizeHalfBlock;
             indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
             indexLo     = indexUp + sizeHalfBlock;
@@ -2536,9 +2537,53 @@ void statevec_pauliXLocal(Qureg qureg, int targetQubit)
 
             stateVecReal[indexLo] = stateRealUp;
             stateVecImag[indexLo] = stateImagUp;
-        } 
-    }
 
+
+            //1
+            thisBlock   = (thisTask+1) / sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask+1)%sizeHalfBlock;
+            indexLo     = indexUp + sizeHalfBlock;
+
+            stateRealUp = stateVecReal[indexUp];
+            stateImagUp = stateVecImag[indexUp];
+
+            stateVecReal[indexUp] = stateVecReal[indexLo];
+            stateVecImag[indexUp] = stateVecImag[indexLo];
+
+            stateVecReal[indexLo] = stateRealUp;
+            stateVecImag[indexLo] = stateImagUp;
+
+            
+            //2
+            thisBlock   = (thisTask+2) / sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask+2)%sizeHalfBlock;
+            indexLo     = indexUp + sizeHalfBlock;
+
+            stateRealUp = stateVecReal[indexUp];
+            stateImagUp = stateVecImag[indexUp];
+
+            stateVecReal[indexUp] = stateVecReal[indexLo];
+            stateVecImag[indexUp] = stateVecImag[indexLo];
+
+            stateVecReal[indexLo] = stateRealUp;
+            stateVecImag[indexLo] = stateImagUp;
+
+
+            //3
+            thisBlock   = (thisTask+3) / sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask+3)%sizeHalfBlock;
+            indexLo     = indexUp + sizeHalfBlock;
+
+            stateRealUp = stateVecReal[indexUp];
+            stateImagUp = stateVecImag[indexUp];
+
+            stateVecReal[indexUp] = stateVecReal[indexLo];
+            stateVecImag[indexUp] = stateVecImag[indexLo];
+
+            stateVecReal[indexLo] = stateRealUp;
+            stateVecImag[indexLo] = stateImagUp;
+        }
+    }
 }
 
 /** Rotate a single qubit by {{0,1},{1,0}.
