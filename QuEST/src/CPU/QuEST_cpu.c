@@ -1719,7 +1719,7 @@ void statevec_compactUnitaryLocal (Qureg qureg, int targetQubit, Complex alpha, 
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
             // store current state vector values in temp variables
@@ -1964,7 +1964,7 @@ void statevec_unitaryLocal(Qureg qureg, int targetQubit, ComplexMatrix2 u)
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
             // store current state vector values in temp variables
@@ -2144,7 +2144,7 @@ void statevec_controlledCompactUnitaryLocal (Qureg qureg, int controlQubit, int 
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
             controlBit = extractBit (controlQubit, indexUp+chunkId*chunkSize);
@@ -2215,7 +2215,7 @@ void statevec_multiControlledUnitaryLocal(
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
             
             
@@ -2283,7 +2283,7 @@ void statevec_controlledUnitaryLocal(Qureg qureg, int controlQubit, int targetQu
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
             controlBit = extractBit (controlQubit, indexUp+chunkId*chunkSize);
@@ -2538,7 +2538,7 @@ void statevec_pauliXLocal(Qureg qureg, int targetQubit)
         #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
             stateRealUp = stateVecReal[indexUp];
@@ -2630,7 +2630,7 @@ void statevec_controlledNotLocal(Qureg qureg, int controlQubit, int targetQubit)
 # endif
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
             controlBit = extractBit(controlQubit, indexUp+chunkId*chunkSize);
@@ -2725,7 +2725,7 @@ void statevec_pauliYLocal(Qureg qureg, int targetQubit, int conjFac)
         #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
             stateRealUp = stateVecReal[indexUp];
@@ -2826,7 +2826,7 @@ void statevec_controlledPauliYLocal(Qureg qureg, int controlQubit, int targetQub
         #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
             controlBit = extractBit(controlQubit, indexUp+chunkId*chunkSize);
@@ -2920,7 +2920,7 @@ void statevec_hadamardLocal(Qureg qureg, int targetQubit)
 # endif
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
-            indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
             stateRealUp = stateVecReal[indexUp];
@@ -3262,7 +3262,7 @@ qreal statevec_findProbabilityOfZeroLocal (Qureg qureg,
 # endif
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock = thisTask / sizeHalfBlock;
-            index     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+            index     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
 
             totalProbability += stateVecReal[index]*stateVecReal[index]
                 + stateVecImag[index]*stateVecImag[index];
@@ -3437,7 +3437,7 @@ void statevec_collapseToKnownProbOutcomeLocal(Qureg qureg, int measureQubit, int
 # endif
             for (thisTask=0; thisTask<numTasks; thisTask++) {
                 thisBlock = thisTask / sizeHalfBlock;
-                index     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+                index     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
                 stateVecReal[index]=stateVecReal[index]*renorm;
                 stateVecImag[index]=stateVecImag[index]*renorm;
 
@@ -3451,7 +3451,7 @@ void statevec_collapseToKnownProbOutcomeLocal(Qureg qureg, int measureQubit, int
 # endif
             for (thisTask=0; thisTask<numTasks; thisTask++) {
                 thisBlock = thisTask / sizeHalfBlock;
-                index     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
+                index     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
                 stateVecReal[index]=0;
                 stateVecImag[index]=0;
 
