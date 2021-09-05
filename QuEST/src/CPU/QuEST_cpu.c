@@ -275,7 +275,7 @@ void densmatr_mixDepolarisingDistributed(Qureg qureg, int targetQubit, qreal dep
             thisIndex = thisOuterColumn*sizeOuterColumn + thisInnerBlock*sizeInnerBlock 
                 + thisIndexInInnerBlock;
             // check if we are in the upper or lower half of an outer block
-            outerBit = extractBit(targetQubit, (thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented);
+            outerBit = (((thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented) & ( 1LL << targetQubit )) >> targetQubit;
             // if we are in the lower half of an outer block, shift to be in the lower half
             // of the inner block as well (we want to dephase |0><0| and |1><1| only)
             thisIndex += outerBit*(sizeInnerHalfBlock);
@@ -353,7 +353,7 @@ void densmatr_mixDampingDistributed(Qureg qureg, int targetQubit, qreal damping)
             thisIndex = thisOuterColumn*sizeOuterColumn + thisInnerBlock*sizeInnerBlock 
                 + thisIndexInInnerBlock;
             // check if we are in the upper or lower half of an outer block
-            outerBit = extractBit(targetQubit, (thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented);
+            outerBit = (((thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented) & ( 1LL << targetQubit )) >> targetQubit;
             // if we are in the lower half of an outer block, shift to be in the lower half
             // of the inner block as well (we want to dephase |0><0| and |1><1| only)
             thisIndex += outerBit*(sizeInnerHalfBlock);
@@ -365,7 +365,7 @@ void densmatr_mixDampingDistributed(Qureg qureg, int targetQubit, qreal damping)
 
             // Extract state bit, is 0 if thisIndex corresponds to a state with 0 in the target qubit
             // and is 1 if thisIndex corresponds to a state with 1 in the target qubit
-            stateBit = extractBit(targetQubit, (thisIndex+qureg.numAmpsPerChunk*qureg.chunkId));
+            stateBit = ((thisIndex+qureg.numAmpsPerChunk*qureg.chunkId) & ( 1LL << targetQubit )) >> targetQubit;
            
             // state[thisIndex] = (1-depolLevel)*state[thisIndex] + depolLevel*(state[thisIndex]
             //      + pair[thisTask])/2
@@ -601,13 +601,13 @@ void densmatr_mixTwoQubitDepolarisingDistributed(Qureg qureg, int targetQubit,
                 + thisInnerBlockQ1InInnerBlockQ2*sizeInnerBlockQ1 + thisIndexInInnerBlockQ1;
 
             // check if we are in the upper or lower half of an outer block for Q1
-            outerBitQ1 = extractBit(targetQubit, (thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented);
+            outerBitQ1 = (((thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented) & ( 1LL << targetQubit )) >> targetQubit;
             // if we are in the lower half of an outer block, shift to be in the lower half
             // of the inner block as well (we want to dephase |0><0| and |1><1| only)
             thisIndex += outerBitQ1*(sizeInnerHalfBlockQ1);
 
             // check if we are in the upper or lower half of an outer block for Q2
-            outerBitQ2 = extractBit(qubit2, (thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented);
+            outerBitQ2 = (((thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented) & ( 1LL << qubit2 )) >> qubit2;
             // if we are in the lower half of an outer block, shift to be in the lower half
             // of the inner block as well (we want to dephase |0><0| and |1><1| only)
             thisIndex += outerBitQ2*(sizeInnerQuarterBlockQ2<<1);
@@ -695,7 +695,7 @@ void densmatr_mixTwoQubitDepolarisingQ1LocalQ2DistributedPart3(Qureg qureg, int 
                 + thisInnerBlockQ1InInnerBlockQ2*sizeInnerBlockQ1 + thisIndexInInnerBlockQ1;
 
             // check if we are in the upper or lower half of an outer block for Q1
-            outerBitQ1 = extractBit(targetQubit, (thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented);
+            outerBitQ1 = (((thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented) & ( 1LL << targetQubit )) >> targetQubit;
             // if we are in the lower half of an outer block, shift to be in the lower half
             // of the inner block as well (we want to dephase |0><0| and |1><1| only)
             thisIndex += outerBitQ1*(sizeInnerHalfBlockQ1);
@@ -706,7 +706,7 @@ void densmatr_mixTwoQubitDepolarisingQ1LocalQ2DistributedPart3(Qureg qureg, int 
                 outerBitQ1*sizeInnerHalfBlockQ1*sizeOuterQuarterColumn;
             
             // check if we are in the upper or lower half of an outer block for Q2
-            outerBitQ2 = extractBit(qubit2, (thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented);
+            outerBitQ2 = (((thisIndex+qureg.numAmpsPerChunk*qureg.chunkId)>>qureg.numQubitsRepresented) & ( 1LL << qubit2 )) >> qubit2;
             // if we are in the lower half of an outer block, shift to be in the lower half
             // of the inner block as well (we want to dephase |0><0| and |1><1| only)
             thisIndex += outerBitQ2*(sizeInnerQuarterBlockQ2<<1);
@@ -796,8 +796,8 @@ void densmatr_collapseToKnownProbOutcome(Qureg qureg, int measureQubit, int outc
     // or each block will span 2^c number of nodes. Similarly for the innerblocks.
     long long int locNumAmps = qureg.numAmpsPerChunk;
     long long int globalStartInd = qureg.chunkId * locNumAmps;
-    int innerBit = extractBit(measureQubit, globalStartInd);
-    int outerBit = extractBit(measureQubit + qureg.numQubitsRepresented, globalStartInd);
+    int innerBit = (globalStartInd & ( 1LL << measureQubit )) >> measureQubit;
+    int outerBit = (globalStartInd & ( 1LL << (measureQubit + qureg.numQubitsRepresented) )) >> (measureQubit + qureg.numQubitsRepresented);
     
     // If this chunk's amps are entirely inside an outer block
     if (locNumAmps <= outerBlockSize) {
@@ -1570,7 +1570,7 @@ void statevec_initStateOfSingleQubit(Qureg *qureg, int qubitId, int outcome)
 # pragma omp for schedule (static)
 # endif
         for (index=0; index<chunkSize; index++) {
-            bit = extractBit(qubitId, index+chunkId*chunkSize);
+            bit = ((index+chunkId*chunkSize) & ( 1LL << qubitId )) >> qubitId;
             if (bit==outcome) {
                 stateVecReal[index] = normFactor;
                 stateVecImag[index] = 0.0;
@@ -1715,7 +1715,7 @@ void statevec_compactUnitaryLocal (Qureg qureg, int targetQubit, Complex alpha, 
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
@@ -1771,7 +1771,7 @@ void statevec_multiControlledTwoQubitUnitaryLocal(Qureg qureg, long long int ctr
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             
             // determine ind00 of |..0..0..>
@@ -1887,7 +1887,7 @@ void statevec_multiControlledMultiQubitUnitaryLocal(Qureg qureg, long long int c
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             
             // find this task's start index (where all targs are 0)
@@ -1906,7 +1906,7 @@ void statevec_multiControlledMultiQubitUnitaryLocal(Qureg qureg, long long int c
                 // get statevec index of current target qubit assignment
                 ind = thisInd00;
                 for (t=0; t < numTargs; t++)
-                    if (extractBit(t, i))
+                    if (((i & ( 1LL << t )) >> t))
                         ind = flipBit(ind, targs[t]);
                 
                 // update this tasks's private arrays
@@ -1960,7 +1960,7 @@ void statevec_unitaryLocal(Qureg qureg, int targetQubit, ComplexMatrix2 u)
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
@@ -2030,7 +2030,7 @@ void statevec_compactUnitaryDistributed (Qureg qureg,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             // store current state vector values in temp variables
             stateRealUp = stateVecRealUp[thisTask];
@@ -2087,7 +2087,7 @@ void statevec_unitaryDistributed (Qureg qureg,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             // store current state vector values in temp variables
             stateRealUp = stateVecRealUp[thisTask];
@@ -2140,14 +2140,14 @@ void statevec_controlledCompactUnitaryLocal (Qureg qureg, int controlQubit, int 
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
             indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
-            controlBit = extractBit (controlQubit, indexUp+chunkId*chunkSize);
+            controlBit = ((indexUp+chunkId*chunkSize & ( 1LL << controlQubit )) >> controlQubit);
             if (controlBit){
                 // store current state vector values in temp variables
                 stateRealUp = stateVecReal[indexUp];
@@ -2211,7 +2211,7 @@ void statevec_multiControlledUnitaryLocal(
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
@@ -2279,14 +2279,14 @@ void statevec_controlledUnitaryLocal(Qureg qureg, int controlQubit, int targetQu
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
             indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
-            controlBit = extractBit (controlQubit, indexUp+chunkId*chunkSize);
+            controlBit = (((indexUp+chunkId*chunkSize) & ( 1LL << controlQubit )) >> controlQubit);
             if (controlBit){
                 // store current state vector values in temp variables
                 stateRealUp = stateVecReal[indexUp];
@@ -2357,9 +2357,9 @@ void statevec_controlledCompactUnitaryDistributed (Qureg qureg, int controlQubit
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
-            controlBit = extractBit (controlQubit, thisTask+chunkId*chunkSize);
+            controlBit = ((thisTask+chunkId*chunkSize) & ( 1LL << controlQubit )) >> controlQubit;
             if (controlBit){
                 // store current state vector values in temp variables
                 stateRealUp = stateVecRealUp[thisTask];
@@ -2420,9 +2420,9 @@ void statevec_controlledUnitaryDistributed (Qureg qureg, int controlQubit,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
-            controlBit = extractBit (controlQubit, thisTask+chunkId*chunkSize);
+            controlBit = ((thisTask+chunkId*chunkSize) & ( 1LL << controlQubit )) >> controlQubit;
             if (controlBit){
                 // store current state vector values in temp variables
                 stateRealUp = stateVecRealUp[thisTask];
@@ -2488,7 +2488,7 @@ void statevec_multiControlledUnitaryDistributed (
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             if (ctrlQubitsMask == (ctrlQubitsMask & ((thisTask+chunkId*chunkSize) ^ ctrlFlipMask))) {
                 // store current state vector values in temp variables
@@ -2535,7 +2535,7 @@ void statevec_pauliXLocal(Qureg qureg, int targetQubit)
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
             indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
@@ -2588,7 +2588,7 @@ void statevec_pauliXDistributed (Qureg qureg,
 # pragma omp for schedule (static)
 # endif
 
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             stateVecRealOut[thisTask] = stateVecRealIn[thisTask];
             stateVecImagOut[thisTask] = stateVecImagIn[thisTask];
@@ -2633,7 +2633,7 @@ void statevec_controlledNotLocal(Qureg qureg, int controlQubit, int targetQubit)
             indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
-            controlBit = extractBit(controlQubit, indexUp+chunkId*chunkSize);
+            ((indexUp+chunkId*chunkSize) & ( 1LL << controlQubit )) >> controlQubit;
             if (controlBit){
                 stateRealUp = stateVecReal[indexUp];
                 stateImagUp = stateVecImag[indexUp];
@@ -2685,7 +2685,7 @@ void statevec_controlledNotDistributed (Qureg qureg, int controlQubit,
 # pragma omp for schedule (static)
 # endif
         for (thisTask=0; thisTask<numTasks; thisTask++) {
-            controlBit = extractBit (controlQubit, thisTask+chunkId*chunkSize);
+            controlBit = ((thisTask+chunkId*chunkSize) & ( 1LL << controlQubit )) >> controlQubit;
             if (controlBit){
                 stateVecRealOut[thisTask] = stateVecRealIn[thisTask];
                 stateVecImagOut[thisTask] = stateVecImagIn[thisTask];
@@ -2722,7 +2722,7 @@ void statevec_pauliYLocal(Qureg qureg, int targetQubit, int conjFac)
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
             indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
@@ -2779,7 +2779,7 @@ void statevec_pauliYDistributed(Qureg qureg,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             stateVecRealOut[thisTask] = conjFac * realSign * stateVecImagIn[thisTask];
             stateVecImagOut[thisTask] = conjFac * imagSign * stateVecRealIn[thisTask];
@@ -2823,13 +2823,13 @@ void statevec_controlledPauliYLocal(Qureg qureg, int controlQubit, int targetQub
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
             indexUp     = thisBlock*sizeBlock + (thisTask & (sizeHalfBlock-1));
             indexLo     = indexUp + sizeHalfBlock;
 
-            controlBit = extractBit(controlQubit, indexUp+chunkId*chunkSize);
+            controlBit = ((indexUp+chunkId*chunkSize) & ( 1LL << controlQubit )) >> controlQubit;
             if (controlBit){
                 stateRealUp = stateVecReal[indexUp];
                 stateImagUp = stateVecImag[indexUp];
@@ -2871,9 +2871,9 @@ void statevec_controlledPauliYDistributed (Qureg qureg, int controlQubit,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
-        #pragma unroll full
+        #pragma unroll
         for (thisTask=0; thisTask<numTasks; thisTask++) {
-            controlBit = extractBit (controlQubit, thisTask+chunkId*chunkSize);
+            controlBit = ((thisTask+chunkId*chunkSize) & ( 1LL << controlQubit )) >> controlQubit;
             if (controlBit){
                 stateVecRealOut[thisTask] = conjFac * stateVecImagIn[thisTask];
                 stateVecImagOut[thisTask] = conjFac * -stateVecRealIn[thisTask];
@@ -3023,7 +3023,7 @@ void statevec_phaseShiftByTerm (Qureg qureg, int targetQubit, Complex term)
     for (index=0; index<stateVecSize; index++) {
         
         // update the coeff of the |1> state of the target qubit
-        targetBit = extractBit (targetQubit, index+chunkId*chunkSize);
+        targetBit = ((index+chunkId*chunkSize) & ( 1LL << targetQubit )) >> targetQubit;
         if (targetBit) {
             
             stateRealLo = stateVecReal[index];
@@ -3062,8 +3062,8 @@ void statevec_controlledPhaseShift (Qureg qureg, int idQubit1, int idQubit2, qre
     schedule (static)
 # endif
     for (index=0; index<stateVecSize; index++) {
-        bit1 = extractBit (idQubit1, index+chunkId*chunkSize);
-        bit2 = extractBit (idQubit2, index+chunkId*chunkSize);
+        bit1 = (((index+chunkId*chunkSize)) & ( 1LL << idQubit1 )) >> idQubit1;
+        bit2 = (((index+chunkId*chunkSize)) & ( 1LL << idQubit2 )) >> idQubit2;
         if (bit1 && bit2) {
             
             stateRealLo = stateVecReal[index];
@@ -3206,7 +3206,7 @@ qreal densmatr_findProbabilityOfZeroLocal(Qureg qureg, int measureQubit) {
             basisStateInd = numPrevDiags + visitedDiags;
             index = localIndNextDiag + diagSpacing * visitedDiags;
     
-            if (extractBit(measureQubit, basisStateInd) == 0)
+            if (((basisStateInd & ( 1LL << measureQubit )) >> measureQubit) == 0)
                 zeroProb += stateVecReal[index]; // assume imag[diagonls] ~ 0
 
         }
@@ -3338,8 +3338,8 @@ void statevec_controlledPhaseFlip (Qureg qureg, int idQubit1, int idQubit2)
     schedule (static)
 # endif
     for (index=0; index<stateVecSize; index++) {
-        bit1 = extractBit (idQubit1, index+chunkId*chunkSize);
-        bit2 = extractBit (idQubit2, index+chunkId*chunkSize);
+        bit1 = (((index+chunkId*chunkSize) & ( 1LL << idQubit1 )) >> idQubit1);
+        bit2 = (((index+chunkId*chunkSize) & ( 1LL << idQubit2 )) >> idQubit2);
         if (bit1 && bit2) {
             stateVecReal [index] = - stateVecReal [index];
             stateVecImag [index] = - stateVecImag [index];
