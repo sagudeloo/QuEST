@@ -3814,7 +3814,15 @@ extern "C" void invalidQuESTInputError(const char* errMsg, const char* errFunc) 
  * @author Tyson Jones
  */
 void invalidQuESTInputError(const char* errMsg, const char* errFunc);
- 
+
+void u1Gate(Qureg qureg, int targetQubit, qreal phi);
+void u2Gate(Qureg qureg, int targetQubit, qreal phi, qreal lambda);
+void u3Gate(Qureg qureg, int targetQubit, qreal theta, qreal phi, qreal lambda);
+void SqX(Qureg qureg, int targetQubit);
+void SqY(Qureg qureg, int targetQubit);
+void SqW(Qureg qureg, int targetQubit);
+void fSim(Qureg qureg, int targetQubit1, int targetQubit2, qreal theta, qreal phi);
+
 #ifndef __cplusplus
  // hide this function from doxygen
  /// \cond HIDDEN_SYMBOLS

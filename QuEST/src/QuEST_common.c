@@ -344,18 +344,36 @@ void statevec_controlledRotateX(Qureg qureg, int controlQubit, int targetQubit, 
 
     Vector unitAxis = {1, 0, 0};
     statevec_controlledRotateAroundAxis(qureg, controlQubit, targetQubit, angle, unitAxis);
+    // qreal cos_angle = cos(angle/2.0), sin_angle = sin(angle/2.0);
+    // ComplexMatrix2 u = {
+    //     .real={{cos_angle, 0.0}, {0.0, cos_angle}},
+    //     .imag={{0.0, -sin_angle}, {-sin_angle, 0.0}}
+    // };
+    // statevec_controlledUnitary(qureg, controlQubit, targetQubit, u);
 }
 
 void statevec_controlledRotateY(Qureg qureg, int controlQubit, int targetQubit, qreal angle){
 
     Vector unitAxis = {0, 1, 0};
     statevec_controlledRotateAroundAxis(qureg, controlQubit, targetQubit, angle, unitAxis);
+    // qreal cos_angle = cos(angle/2.0), sin_angle = sin(angle/2.0);
+    // ComplexMatrix2 u = {
+    //     .real={{cos_angle, -sin_angle}, {sin_angle, cos_angle}},
+    //     .imag={{0.0, 0.0}, {0.0, 0.0}}
+    // };
+    // statevec_controlledUnitary(qureg, controlQubit, targetQubit, u);
 }
 
 void statevec_controlledRotateZ(Qureg qureg, int controlQubit, int targetQubit, qreal angle){
 
     Vector unitAxis = {0, 0, 1};
     statevec_controlledRotateAroundAxis(qureg, controlQubit, targetQubit, angle, unitAxis);
+    // qreal cos_angle = cos(angle/2), sin_angle = sin(angle/2);
+    // ComplexMatrix2 u = {
+    //     .real={{cos_angle, 0.0}, {0.0, cos_angle}},
+    //     .imag={{-sin_angle, 0.0}, {0.0, sin_angle}}
+    // };
+    // statevec_controlledUnitary(qureg, controlQubit, targetQubit, u);
 }
 
 int statevec_measureWithStats(Qureg qureg, int measureQubit, qreal *outcomeProb) {
