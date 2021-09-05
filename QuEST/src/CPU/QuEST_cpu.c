@@ -1715,6 +1715,7 @@ void statevec_compactUnitaryLocal (Qureg qureg, int targetQubit, Complex alpha, 
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
@@ -1770,6 +1771,7 @@ void statevec_multiControlledTwoQubitUnitaryLocal(Qureg qureg, long long int ctr
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             
             // determine ind00 of |..0..0..>
@@ -1885,6 +1887,7 @@ void statevec_multiControlledMultiQubitUnitaryLocal(Qureg qureg, long long int c
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             
             // find this task's start index (where all targs are 0)
@@ -1957,6 +1960,7 @@ void statevec_unitaryLocal(Qureg qureg, int targetQubit, ComplexMatrix2 u)
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
@@ -2026,6 +2030,7 @@ void statevec_compactUnitaryDistributed (Qureg qureg,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             // store current state vector values in temp variables
             stateRealUp = stateVecRealUp[thisTask];
@@ -2082,6 +2087,7 @@ void statevec_unitaryDistributed (Qureg qureg,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             // store current state vector values in temp variables
             stateRealUp = stateVecRealUp[thisTask];
@@ -2134,6 +2140,7 @@ void statevec_controlledCompactUnitaryLocal (Qureg qureg, int controlQubit, int 
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
@@ -2204,6 +2211,7 @@ void statevec_multiControlledUnitaryLocal(
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
@@ -2271,6 +2279,7 @@ void statevec_controlledUnitaryLocal(Qureg qureg, int controlQubit, int targetQu
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
 
             thisBlock   = thisTask / sizeHalfBlock;
@@ -2348,6 +2357,7 @@ void statevec_controlledCompactUnitaryDistributed (Qureg qureg, int controlQubit
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             controlBit = extractBit (controlQubit, thisTask+chunkId*chunkSize);
             if (controlBit){
@@ -2410,6 +2420,7 @@ void statevec_controlledUnitaryDistributed (Qureg qureg, int controlQubit,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             controlBit = extractBit (controlQubit, thisTask+chunkId*chunkSize);
             if (controlBit){
@@ -2477,6 +2488,7 @@ void statevec_multiControlledUnitaryDistributed (
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             if (ctrlQubitsMask == (ctrlQubitsMask & ((thisTask+chunkId*chunkSize) ^ ctrlFlipMask))) {
                 // store current state vector values in temp variables
@@ -2523,6 +2535,7 @@ void statevec_pauliXLocal(Qureg qureg, int targetQubit)
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
             indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
@@ -2574,6 +2587,8 @@ void statevec_pauliXDistributed (Qureg qureg,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             stateVecRealOut[thisTask] = stateVecRealIn[thisTask];
             stateVecImagOut[thisTask] = stateVecImagIn[thisTask];
@@ -2707,6 +2722,7 @@ void statevec_pauliYLocal(Qureg qureg, int targetQubit, int conjFac)
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
             indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
@@ -2763,6 +2779,7 @@ void statevec_pauliYDistributed(Qureg qureg,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             stateVecRealOut[thisTask] = conjFac * realSign * stateVecImagIn[thisTask];
             stateVecImagOut[thisTask] = conjFac * imagSign * stateVecRealIn[thisTask];
@@ -2806,6 +2823,7 @@ void statevec_controlledPauliYLocal(Qureg qureg, int controlQubit, int targetQub
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             thisBlock   = thisTask / sizeHalfBlock;
             indexUp     = thisBlock*sizeBlock + thisTask%sizeHalfBlock;
@@ -2853,6 +2871,7 @@ void statevec_controlledPauliYDistributed (Qureg qureg, int controlQubit,
 # ifdef _OPENMP
 # pragma omp for schedule (static)
 # endif
+        #pragma unroll full
         for (thisTask=0; thisTask<numTasks; thisTask++) {
             controlBit = extractBit (controlQubit, thisTask+chunkId*chunkSize);
             if (controlBit){
